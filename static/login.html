@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<script src="../static/jquery-3.1.1.min.js"></script>
+	<script src="../static/login.js"></script>
+	<title>Login</title>
+</head>
+
+<body>
+<hr>
+<button id="homepageredirect">Homepage</button>
+<button id="logout" style="display:inline-block;margin-left:100px; width:100px; background-color:#1CA4F4;">Logout</button>
+<hr>
+<br>
+	<h1>Login</h1>
+
+		<h3>User name</h3>
+		<input type="text" name="userName" id="userName">
+		<h3>Password</h3>
+		<input type="text" name="password" id="password">
+		<br>
+		<br>
+
+		
+		<button id="loginbutton">Login</button>
+<!--		<input type="submit" id="signupbutton" value="Sign Up">-->
+		<br>
+		<div id="loginresult"></div>
+		<br>
+	
+		
+		
+		<p>If you have not registered yet, please sign up</p> <button id="signupredirect">Sign Up</button>
+		<br>
+		<hr>
+	<p style="font-size: 18px; font-family: Sans-serif">As not logged in user, you can try trial version of this super awesome service.</p> <p><u>You can search lateset available rooms in 1 mile radius of Westminster, London:</u></p>
+		<button id="trialscrape">Trial Scrape</button>
+	<div id="ajaxResults"></div>
+</body>
+
+</html>
