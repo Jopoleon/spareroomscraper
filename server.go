@@ -294,9 +294,9 @@ func (ctl *Controller) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	username := session.Values["username"].(string)
 	//log.Printf("Cookie values of current user: %+v \n", session.Values)
 	log.Println("Current user: ", username)
-	log.Println("Login status from DB: ", ctl.IsUserLogged(username.(string)))
+	log.Println("Login status from DB: ", ctl.IsUserLogged(username))
 	//session.Values["loggedin"] == "false" || session.Values["loggedin"] == nil ||
-	if session.Values["loggedin"] == nil || session.Values["loggedin"] == "false" || !ctl.IsUserLogged(username.(string)) {
+	if session.Values["loggedin"] == nil || session.Values["loggedin"] == "false" || !ctl.IsUserLogged(username) {
 		session.Save(r, w)
 		http.Redirect(w, r, "/login", 302)
 		return
