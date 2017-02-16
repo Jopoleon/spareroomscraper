@@ -33,7 +33,7 @@ type UserInfo struct {
 
 var store = sessions.NewCookieStore([]byte("nRrHLlHcHH0u7fUz25Hje9m7uJ5SnJzP"))
 
-var mongoUrl = "mongodb://egor_m:qwer1234@ds135029.mlab.com:35029/spareroom"
+var mongoUrl = "mongodb://egor_m:qwer1234@ds153729.mlab.com:53729/spareroom"
 
 var DBname = "spareroom"
 
