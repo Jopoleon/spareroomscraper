@@ -65,7 +65,7 @@ func SendEmailwithKey(key, addres, currentActivationUrl string) {
 	var err error
 
 	link := currentActivationUrl + "?" + key
-	linkTag := "<a href='" + link + "'>" + link + "</a>"
+	//linkTag := "<a href='" + link + "'>" + link + "</a>"
 	msg := []byte("To: " + addres + "\r\n" +
 		"Subject: Activation letter from SpareRoomScraper\r\n" +
 		"\r\n" +
