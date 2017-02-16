@@ -20,7 +20,7 @@ type RoomInfo struct {
 }
 
 var DBname = "spareroom"
-var mongoUrl = "localhost"
+var mongoUrl = "mongodb://egor2:qwer1234@ds153729.mlab.com:53729/spareroom"
 
 var startUrl = "http://www.spareroom.co.uk/flatshare/search.pl?flatshare_type=offered&location_type=area&search="
 var endUrl = "&miles_from_max=1&action=search&templateoveride=&show_results=&submit="
@@ -72,7 +72,8 @@ func ScrapeRoomsWithLocation(location string) ([]byte, error) {
 }
 
 func TrialScrapeRooms(location string) ([]byte, error) {
-	log.Println("Location for scrape: ", location)
+	log.Println("Trial Location for scrape: ", location)
+	log.Println(mongoUrl)
 
 	url := startUrl + location + endUrl
 	doc, err := goquery.NewDocument(url)
