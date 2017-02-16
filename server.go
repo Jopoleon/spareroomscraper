@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	//"crypto/sha1"
 	//"io/ioutil"
 	//"encoding/json"
@@ -35,6 +36,7 @@ var store = sessions.NewCookieStore([]byte("nRrHLlHcHH0u7fUz25Hje9m7uJ5SnJzP"))
 
 var mongoUrl = "mongodb://egor2:qwer1234@ds153729.mlab.com:53729/spareroom"
 
+//"mongodb://egor2:qwer1234@ds153729.mlab.com:53729/spareroom"
 var DBname = "spareroom"
 
 // func init() {
@@ -169,30 +171,33 @@ func (ctl *Controller) SignUpSubmitHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (ctl *Controller) LoginSubmitHandler(w http.ResponseWriter, r *http.Request) {
+
 	session, err := store.Get(r, "sessionRooms")
 	if err != nil {
 		log.Println(err)
 	}
+
 	r.ParseForm()
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	log.Print("Username login request: ", username, password)
+
 	if ctl.IsUserRegistered(username) {
-
+		log.Print("username type: ", reflect.TypeOf(username))
 		if ctl.IsUserActivated(username) {
-
+			log.Println("loginsubmit isactive true")
 			dbsession := ctl.session.Clone()
 			defer dbsession.Close()
 			c := dbsession.DB(DBname).C("usersInfo")
 			result := UserInfo{}
 			err := c.Find(bson.M{"username": username}).One(&result)
 			if err != nil {
-				log.Println(err)
+				log.Println(err, "some shit")
 				w.Write([]byte("Username not found "))
 				return
 			}
 			log.Printf("Data base userinfo: %+v \n", result)
-			log.Print("pass from DB: ", result.Password, " pass from cookie: ", session.Values["password"])
+			log.Print("pass from DB: ", result.Password, " pass from cookie: ")
 			if result.Password == password {
 				log.Println("inside cheking password")
 				session.Values["loggedin"] = "true"
@@ -213,7 +218,8 @@ func (ctl *Controller) LoginSubmitHandler(w http.ResponseWriter, r *http.Request
 				return
 			}
 		} else {
-			w.Write([]byte("Your account with username: " + username + " is not activated. Check your email: " + session.Values["email"].(string)))
+			w.Write([]byte("Account not activated"))
+			//w.Write([]byte("Your account with username: " + username + " is not activated. Check your email: " + session.Values["email"].(string)))
 			return
 
 		}
@@ -229,10 +235,10 @@ func (ctl *Controller) LogoutSubmitHandler(w http.ResponseWriter, r *http.Reques
 		log.Println(err)
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	log.Println("Inside Logout Handler, username for logout: ", session.Values["username"])
+	log.Println("Inside Logout Handler, username for logout: ", session.Values["username"].(string))
 	if session.Values["username"].(string) != "" {
-		username := session.Values["username"]
-		if ctl.IsUserLogged(username.(string)) {
+		username := session.Values["username"].(string)
+		if ctl.IsUserLogged(username) {
 
 			dbsession := ctl.session.Clone()
 			defer dbsession.Close()
@@ -247,7 +253,7 @@ func (ctl *Controller) LogoutSubmitHandler(w http.ResponseWriter, r *http.Reques
 			if err != nil {
 				panic(err)
 			}
-			w.Write([]byte("Succsesfuly logedout from " + username.(string)))
+			w.Write([]byte("Succsesfuly logedout from " + username))
 		} else {
 			w.Write([]byte("You already have logged out"))
 		}
@@ -291,11 +297,26 @@ func (ctl *Controller) IndexHandler(w http.ResponseWriter, r *http.Request) {
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	log.Println("IndexHandler used")
-	username := session.Values["username"].(string)
+	log.Println("Session Values map: ", session.Values)
+	//username := session.Values["username"].(string)
 	//log.Printf("Cookie values of current user: %+v \n", session.Values)
-	log.Println("Current user: ", username)
-	log.Println("Login status from DB: ", ctl.IsUserLogged(username))
+	// log.Println("Current user: ", username)
+	// log.Println("Login status from DB: ", ctl.IsUserLogged(username))
 	//session.Values["loggedin"] == "false" || session.Values["loggedin"] == nil ||
+
+	var username string
+	log.Println("session.Values['username']")
+	if session.Values["username"] != nil && session.Values["username"] != "" {
+		username = session.Values["username"].(string)
+	} else {
+		username = ""
+	}
+	log.Println("index IsLogged: ", ctl.IsUserLogged(username))
+	log.Println("index IsActive: ", ctl.IsUserActivated(username))
+	log.Println("index IsReged: ", ctl.IsUserRegistered(username))
+
+	log.Println("indexhandler current Username: ", username)
+	log.Println("Login status from DB: ", ctl.IsUserLogged(username))
 	if session.Values["loggedin"] == nil || session.Values["loggedin"] == "false" || !ctl.IsUserLogged(username) {
 		session.Save(r, w)
 		http.Redirect(w, r, "/login", 302)
@@ -331,7 +352,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 //check status ONLY in database!!!
 func (ctl *Controller) IsUserRegistered(username string) bool {
-
+	log.Print("IsRegistred username type: ", reflect.TypeOf(username))
 	dbsession := ctl.session.Clone()
 	defer dbsession.Close()
 
@@ -339,7 +360,7 @@ func (ctl *Controller) IsUserRegistered(username string) bool {
 	result := UserInfo{}
 	err := c.Find(bson.M{"username": username}).One(&result)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "IsUserRegistered")
 
 		return false
 	}
@@ -351,7 +372,7 @@ func (ctl *Controller) IsUserRegistered(username string) bool {
 	}
 }
 func (ctl *Controller) IsUserLogged(username string) bool {
-
+	log.Print("IsLogged username type: ", reflect.TypeOf(username))
 	dbsession := ctl.session.Clone()
 	defer dbsession.Close()
 
@@ -359,7 +380,7 @@ func (ctl *Controller) IsUserLogged(username string) bool {
 	result := UserInfo{}
 	err := c.Find(bson.M{"username": username}).One(&result)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "IsUserLogged")
 		return false
 	}
 	if result.Loggedin == "true" {
@@ -369,7 +390,7 @@ func (ctl *Controller) IsUserLogged(username string) bool {
 	}
 }
 func (ctl *Controller) IsUserActivated(username string) bool {
-
+	log.Print("IsActive username type: ", reflect.TypeOf(username))
 	dbsession := ctl.session.Clone()
 	defer dbsession.Close()
 
@@ -377,7 +398,7 @@ func (ctl *Controller) IsUserActivated(username string) bool {
 	result := UserInfo{}
 	err := c.Find(bson.M{"username": username}).One(&result)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "IsUserActivated")
 		return false
 	}
 	if result.IsActivated == "true" {
